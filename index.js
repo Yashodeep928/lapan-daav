@@ -1,120 +1,81 @@
-       const gamezone = document.getElementById("gameArea");
-        const player = document.getElementById("player");
+const gamezone = document.getElementById("gameArea");
+const player = document.getElementById("player");
 
 
-        for (let i = 0; i < 3; i++) {
+let playerX = 100;
+let playerY = 100;
 
-            const box = document.createElement("div");
+const speed = 10;
 
-            box.style.background = "red";
-            box.style.width = "50px";
-            box.style.height = "50px";
-
-            box.style.position = "absolute";
-
-            // Box size
-            const boxWidth = 50;
-            const boxHeight = 50;
-
-          
-            const randomX =
-                Math.random() * (gamezone.clientWidth - boxWidth);
-
-            const randomY = Math.random() * (gamezone.clientHeight - boxHeight);
-
-            box.style.left = `${randomX}px`;
-            box.style.top = `${randomY}px`;
-
-          
-            gamezone.appendChild(box);
-
-            // Remove box when clicked
-            box.addEventListener("click", () => {
-
-                console.log("clicked");
-
-                box.style.display = "none";
-            });
-        }
+player.style.left = `${playerX}px`;
+player.style.top = `${playerY}px`;
 
 
-        const speed = 10;
+for (let i = 0; i < 3; i++) {
 
-        window.addEventListener("keydown", Movement);
+    const box = document.createElement("div");
 
+    box.style.background = "red";
+    box.style.width = "50px";
+    box.style.height = "50px";
+    box.style.position = "absolute";
 
-        function Movement(e) {
+    const randomX =  Math.random() * (gamezone.clientWidth - 50);
 
-            e.preventDefault();
+    const randomY = Math.random() * (gamezone.clientHeight - 50);
 
-            // Current player position
-            let topPos = parseInt(player.style.top);
-            let leftPos = parseInt(player.style.left);
+    box.style.left = `${randomX}px`;
+    box.style.top = `${randomY}px`;
 
-
-            // Player dimensions
-            const playerWidth = player.offsetWidth;
-            const playerHeight = player.offsetHeight;
-
-
-            // Game area boundaries
-            const maxLeft =
-                gamezone.clientWidth - playerWidth;
-
-            const maxTop =
-                gamezone.clientHeight - playerHeight;
+    gamezone.appendChild(box);
 
 
-            // Decide movement
-            switch (e.key) {
+    box.addEventListener("click", () => {
+        box.style.display = "none";
 
-                case "ArrowUp":
+    });
 
-                    topPos = Math.max(
-                        0,
-                        topPos - speed
-                    );
+}
 
-                    break;
+window.addEventListener("keydown", movement);
 
+function movement(e) {
 
-                case "ArrowDown":
+    switch (e.key) {
 
-                    topPos = Math.min(
-                        maxTop,
-                        topPos + speed
-                    );
+        case "ArrowUp":
 
-                    break;
+            playerY -= speed;
+
+            break;
 
 
-                case "ArrowLeft":
+        case "ArrowDown":
 
-                    leftPos = Math.max(
-                        0,
-                        leftPos - speed
-                    );
+            playerY += speed;
 
-                    break;
+            break;
 
 
-                case "ArrowRight":
+        case "ArrowLeft":
 
-                    leftPos = Math.min(
-                        maxLeft,
-                        leftPos + speed
-                    );
+            playerX -= speed;
 
-                    break;
+            break;
 
 
-                default:
+        case "ArrowRight":
 
-                    return;
-            }
+            playerX += speed;
+
+            break;
 
 
-            // Update player position
-            player.style.top = `${topPos}px`;
-            player.style.left = `${leftPos}px`;
-        }
+        default:
+            return;
+    }
+
+
+    player.style.left = `${playerX}px`;
+    player.style.top = `${playerY}px`;
+}
