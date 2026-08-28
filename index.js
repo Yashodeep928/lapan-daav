@@ -5,6 +5,9 @@ const player = document.getElementById("player");
 let playerX = 100;
 let playerY = 100;
 
+
+
+
 const speed = 10;
 
 player.style.left = `${playerX}px`;
