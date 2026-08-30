@@ -2,19 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Lapan-Daav</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="./style.css">
+
+   
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
+
 </head>
+
 <body>
 
-    <div id="gameArea">
+    <div id="gameArea"></div>
 
-        <div id="player"></div>
+    <script type="module" src="./js/index.js"></script>
 
-    </div>
-
-    
-    <script src="index.js"></script>
 </body>
 </html>
