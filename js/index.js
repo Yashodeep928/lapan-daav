@@ -21,6 +21,103 @@ import { createPlayer } from "./player.js";
 import {setupControls,keys} from "./controls.js";
 
 const gameArea = document.getElementById( "gameArea"  );
+const timerDisplay = document.getElementById("timerDisplay");
+const friendsDisplay = document.getElementById("friendsDisplay");
+const roundMessage = document.getElementById("roundMessage");
+
+const ROUND_DURATION_MS = 60 * 60 * 1000;
+const FIND_DISTANCE = 2.25;
+let roundStarted = false;
+let roundFinished = false;
+let roundDeadline = 0;
+let foundFriends = 0;
+let lastDisplayedSecond = -1;
+let messageHideAt = 0;
+
+function formatRoundTime(totalSeconds) {
+    const seconds = Math.max(0, Math.ceil(totalSeconds));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainder = seconds % 60;
+
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
+function updateFriendsDisplay() {
+    friendsDisplay.textContent = `Friends found: ${foundFriends} / ${hiddenPlayers.length || 3}`;
+}
+
+function showRoundMessage(text, finalMessage = false) {
+    roundMessage.textContent = text;
+    roundMessage.classList.add("visible");
+    roundMessage.classList.toggle("final", finalMessage);
+    messageHideAt = finalMessage ? Infinity : Date.now() + 1800;
+}
+
+function tryStartRound() {
+    if (roundStarted || !player || hiddenPlayers.length === 0) {
+        return;
+    }
+
+    roundStarted = true;
+    roundDeadline = Date.now() + ROUND_DURATION_MS;
+    timerDisplay.textContent = "1:00:00";
+    updateFriendsDisplay();
+    showRoundMessage("Find all 3 friends!");
+}
+
+function finishRound(didWin) {
+    roundFinished = true;
+    showRoundMessage(didWin ? `You found everyone with ${timerDisplay.textContent} left!`: `Time is up — you found ${foundFriends} of ${hiddenPlayers.length} friends.`,
+        true
+    );
+}
+
+function updateRound() {
+    if (!roundStarted) {
+        return;
+    }
+
+    const now = Date.now();
+
+    if (!roundFinished) {
+        const remainingSeconds = Math.max(0, (roundDeadline - now) / 1000);
+        const displayedSecond = Math.ceil(remainingSeconds);
+
+        if (displayedSecond !== lastDisplayedSecond) {
+            timerDisplay.textContent = formatRoundTime(remainingSeconds);
+            lastDisplayedSecond = displayedSecond;
+        }
+
+        hiddenPlayers.forEach((friend) => {
+            if (friend.found || !player) {
+                return;
+            }
+
+            const deltaX = player.position.x - friend.character.position.x;
+            const deltaZ = player.position.z - friend.character.position.z;
+
+            if (deltaX * deltaX + deltaZ * deltaZ <= FIND_DISTANCE * FIND_DISTANCE) {
+                friend.found = true;
+                friend.character.visible = false;
+                foundFriends += 1;
+                updateFriendsDisplay();
+                showRoundMessage(`Friend found! ${foundFriends} / ${hiddenPlayers.length}`);
+            }
+        });
+
+        if (foundFriends === hiddenPlayers.length) {
+            finishRound(true);
+        } else if (remainingSeconds <= 0) {
+            timerDisplay.textContent = "0:00:00";
+            finishRound(false);
+        }
+    }
+
+    if (!roundFinished && now >= messageHideAt) {
+        roundMessage.classList.remove("visible");
+    }
+}
 
 const scene = new THREE.Scene();
 
@@ -196,6 +293,8 @@ createHiddenPlayers().then((friends) => {
             scene.add(character);
         });
 
+        tryStartRound();
+
     })
     .catch((error) => {
         console.error("Hidden friends failed to load", error);
@@ -252,6 +351,8 @@ createPlayer().then((data) => {
             animations.run.paused = true;
 
         }
+
+        tryStartRound();
 
     })
     .catch((error) => {
@@ -478,6 +579,8 @@ function animate() {
 
 
     updatePlayer(delta);
+
+    updateRound();
 
 
     updateCamera( delta );

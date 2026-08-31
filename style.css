@@ -21,3 +21,85 @@ canvas {
     width: 100%;
     height: 100%;
 }
+
+#gameHud {
+    position: fixed;
+    top: 22px;
+    left: 22px;
+    z-index: 10;
+    min-width: 210px;
+    padding: 14px 18px 15px;
+    color: #fffdf1;
+    background: linear-gradient(145deg, rgba(29, 63, 38, 0.88), rgba(18, 39, 26, 0.76));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(19, 37, 23, 0.25);
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    pointer-events: none;
+    backdrop-filter: blur(7px);
+}
+
+.hud-label {
+    color: #dce9c7;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+#timerDisplay {
+    margin: 2px 0 5px;
+    font-size: 30px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.28);
+}
+
+#friendsDisplay {
+    color: #f2eccf;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#roundMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 11;
+    max-width: min(460px, calc(100vw - 40px));
+    padding: 16px 24px;
+    color: #fffdf1;
+    background: rgba(24, 61, 34, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(13, 30, 18, 0.3);
+    font: 800 24px/1.25 "Trebuchet MS", Arial, sans-serif;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -42%) scale(0.94);
+    transition: opacity 180ms ease, transform 180ms ease;
+    backdrop-filter: blur(8px);
+}
+
+#roundMessage.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#roundMessage.final {
+    padding: 22px 30px;
+    font-size: 30px;
+}
+
+@media (max-width: 600px) {
+    #gameHud {
+        top: 12px;
+        left: 12px;
+        min-width: 180px;
+        padding: 10px 14px 12px;
+    }
+
+    #timerDisplay {
+        font-size: 25px;
+    }
+}
