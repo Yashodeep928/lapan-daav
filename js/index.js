@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
 import { createSky } from "./sky.js";
 import { createSunlight } from "./sunlight.js";
 import { createGround } from "./ground.js";
@@ -19,102 +18,44 @@ import { createGameSounds, updateGameSounds, playJumpSound } from "./sounds.js";
 
 import { createPlayer } from "./player.js";
 
-import {
-    setupControls,
-    keys
-} from "./controls.js";
+import {setupControls,keys} from "./controls.js";
+
+const gameArea = document.getElementById( "gameArea"  );
+
+const scene = new THREE.Scene();
+
+scene.background =createSky();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight,0.1,1000);
 
 
-// --------------------------------
-// GAME AREA
-// --------------------------------
+camera.position.set( 10, 8, 18);
 
-const gameArea =
-    document.getElementById(
-        "gameArea"
-    );
-
-
-// --------------------------------
-// SCENE
-// --------------------------------
-
-const scene =
-    new THREE.Scene();
-
-scene.background =
-    createSky();
-
-
-// --------------------------------
-// CAMERA
-// --------------------------------
-
-const camera =
-    new THREE.PerspectiveCamera(
-        60,
-
-        window.innerWidth /
-        window.innerHeight,
-
-        0.1,
-        1000
-    );
-
-
-camera.position.set(
-    10,
-    8,
-    18
-);
-
-
-// --------------------------------
-// RENDERER
-// --------------------------------
-
-const renderer =
-    new THREE.WebGLRenderer({
+const renderer = new THREE.WebGLRenderer({
         antialias: true
     });
 
 
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
+renderer.setSize(window.innerWidth,window.innerHeight);
 
 
-renderer.shadowMap.enabled =
-    true;
+renderer.shadowMap.enabled = true;
 
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-renderer.outputColorSpace =
-    THREE.SRGBColorSpace;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-renderer.toneMapping =
-    THREE.ACESFilmicToneMapping;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure =
-    1.05;
+renderer.toneMappingExposure = 1.05;
 
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-);
+renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2));
 
 const gameSounds = createGameSounds(camera);
 
 
-gameArea.appendChild(
-    renderer.domElement
-);
+gameArea.appendChild(renderer.domElement);
 
-
-// --------------------------------
-// MOUSE CAMERA CONTROLS
-// --------------------------------
 
 const orbitControls =new OrbitControls(camera,renderer.domElement);
 
@@ -134,36 +75,21 @@ const desiredCameraTarget = new THREE.Vector3();
 const cameraTargetShift = new THREE.Vector3();
 
 
-// --------------------------------
-// LIGHT
-// --------------------------------
-
 const sunlight =createSunlight();
 
 scene.add(sunlight);
 
 
-// --------------------------------
-// GROUND
-// --------------------------------
 
 const ground =createGround();
 
 scene.add(ground);
 
 
-// --------------------------------
-// CLOUDS
-// --------------------------------
-
 const clouds = createClouds();
 
 scene.add(clouds);
 
-
-// --------------------------------
-// HOUSE
-// --------------------------------
 
 const house =createHouse();
 
@@ -172,20 +98,15 @@ house.position.set(0, 0, -8);
 scene.add( house);
 
 
-// --------------------------------
-// CAR
-// --------------------------------
 
-const car =createCar();
+const car = createCar();
 
 car.position.set(7,0,-2);
 
 scene.add( car);
 
 
-// --------------------------------
-// TREE 1
-// --------------------------------
+
 
 const tree1 =createTree1();
 
@@ -194,22 +115,15 @@ tree1.position.set(-8, 0, -3);
 scene.add( tree1);
 
 
-// --------------------------------
-// TREE 2
-// --------------------------------
 
 const tree2 =createTree2();
 
 tree2.position.set(9, 0, 4);
 
-scene.add(
-    tree2
-);
+scene.add(tree2);
 
 
-// --------------------------------
-// PERIMETER GROVE
-// --------------------------------
+
 
 const perimeterTreeLayout = [
     [-15, 0, -11, 0.82, 1],
@@ -226,12 +140,9 @@ const perimeterTreeLayout = [
     [4, 0, -17, 1.12, 1]
 ];
 
-const perimeterTrees = perimeterTreeLayout.map(
-    ([x, y, z, scale, type], index) => {
+const perimeterTrees = perimeterTreeLayout.map(([x, y, z, scale, type], index) => {
 
-        const tree = type === 1
-            ? createTree1()
-            : createTree2();
+        const tree = type === 1 ? createTree1() : createTree2();
 
         tree.position.set(x, y, z);
         tree.scale.setScalar(scale);
@@ -244,9 +155,7 @@ const perimeterTrees = perimeterTreeLayout.map(
 );
 
 
-// --------------------------------
-// BENCH
-// --------------------------------
+
 
 const bench = createBench();
 
@@ -255,27 +164,16 @@ bench.position.set( -5, 0, 4);
 scene.add(bench);
 
 
-// --------------------------------
-// BUSHES
-// --------------------------------
-
-const bushes =
-    createBushes();
-
-bushes.position.set(
-    2,
-    0,
-    -4
-);
-
-scene.add(
-    bushes
-);
 
 
-// --------------------------------
-// GARDEN BOULDERS
-// --------------------------------
+const bushes = createBushes();
+
+bushes.position.set( 2, 0, -4);
+
+scene.add(bushes);
+
+
+
 
 const rocks = createRocks();
 
@@ -286,14 +184,11 @@ const landscape = createLandscape();
 scene.add(landscape);
 
 
-// --------------------------------
-// HIDDEN FRIENDS
-// --------------------------------
+
 
 let hiddenPlayers = [];
 
-createHiddenPlayers()
-    .then((friends) => {
+createHiddenPlayers().then((friends) => {
 
         hiddenPlayers = friends;
 
@@ -307,9 +202,7 @@ createHiddenPlayers()
     });
 
 
-// --------------------------------
-// GENTLE MORNING BREEZE
-// --------------------------------
+
 
 const breeze = createBreeze();
 const windVegetation = [tree1, tree2, ...perimeterTrees, bushes];
@@ -321,16 +214,10 @@ bushes.userData.windPhase = 4.4;
 scene.add(breeze);
 
 
-// --------------------------------
-// CONTROLS
-// --------------------------------
+
 
 setupControls();
 
-
-// --------------------------------
-// PLAYER VARIABLES
-// --------------------------------
 
 let player = null;
 
@@ -341,32 +228,22 @@ let animations = {};
 let currentAnimation = null;
 
 
-// --------------------------------
-// LOAD PLAYER
-// --------------------------------
 
-createPlayer()
-    .then((data) => {
+createPlayer().then((data) => {
 
-        player =
-            data.player;
+        player = data.player;
 
-        mixer =
-            data.mixer;
+        mixer = data.mixer;
 
-        animations =
-            data.animations;
+        animations = data.animations;
 
 
-        scene.add(
-            player
-        );
+        scene.add( player);
 
 
-        currentAnimation =animations.idle;
+        currentAnimation = animations.idle;
 
-        // This model has no idle clip. Keep its running action scheduled
-        // on a natural keyframe so stopping does not reveal the T-pose.
+        
         if (animations.run) {
 
             animations.run.reset().play();
@@ -384,16 +261,11 @@ createPlayer()
     });
 
 
-// --------------------------------
-// CLOCK
-// --------------------------------
+
 
 const clock =new THREE.Clock();
 
 
-// --------------------------------
-// CHANGE ANIMATION
-// --------------------------------
 
 function playAnimation(action) {
 
@@ -416,19 +288,14 @@ function playAnimation(action) {
     }
 
 
-    action
-        .reset()
-        .fadeIn(0.2)
-        .play();
+    action.reset().fadeIn(0.2).play();
 
 
     currentAnimation = action;
 }
 
 
-// --------------------------------
-// UPDATE PLAYER
-// --------------------------------
+
 
 const moveDirection =new THREE.Vector3();
 const WALK_SPEED = 11;
@@ -446,12 +313,10 @@ function updatePlayer(delta) {
         return;
     }
 
-    // Reset direction every frame
+    
     moveDirection.set(0, 0, 0);
 
-    // -------------------------
-    // KEYBOARD DIRECTION
-    // -------------------------
+
 
     if (keys.forward) {
         moveDirection.z -= 1;
@@ -469,82 +334,48 @@ function updatePlayer(delta) {
         moveDirection.x += 1;
     }
 
-    // Is player moving?
-    const moving =
-        moveDirection.lengthSq() > 0;
+    const moving = moveDirection.lengthSq() > 0;
 
 
     if (moving) {
 
-        // Important for diagonal movement
         moveDirection.normalize();
 
-        // -------------------------
-        // SPEED
-        // -------------------------
+      
 
-        const speed = keys.crouch
-            ? CROUCH_SPEED
-            : keys.run
-                ? SPRINT_SPEED
-                : WALK_SPEED;
+        const speed = keys.crouch ? CROUCH_SPEED : keys.run  ? SPRINT_SPEED : WALK_SPEED;
 
-        // -------------------------
-        // FIND ANGLE
-        // -------------------------
+   
 
         const targetAngle = Math.atan2( moveDirection.x,moveDirection.z );
 
-        // -------------------------
-        // SMOOTH ROTATION
-        // -------------------------
+       
 
         let angleDifference =targetAngle -player.rotation.y;
 
-        angleDifference =
-            Math.atan2(
-                Math.sin(angleDifference),
-                Math.cos(angleDifference)
-            );
+        angleDifference = Math.atan2( Math.sin(angleDifference),Math.cos(angleDifference));
 
-        player.rotation.y +=
-            angleDifference *
-            Math.min(
-                1,
-                10 * delta
-            );
+        player.rotation.y += angleDifference *Math.min( 1,10 * delta);
 
-        // -------------------------
-        // MOVE PLAYER
-        // -------------------------
+     
 
-        player.position.x +=
-            moveDirection.x *
-            speed *
-            delta;
+        player.position.x += moveDirection.x * speed * delta;
 
-        player.position.z +=
-            moveDirection.z *
-            speed *
-            delta;
+        player.position.z += moveDirection.z * speed * delta;
 
-        // -------------------------
-        // RUN ANIMATION
-        // -------------------------
+       
 
         if (
             animations.run
         ) {
 
-            // Match the stride to normal running, sprinting, or crouch-walking.
+            
             animations.run.timeScale = keys.crouch ? 0.72 : keys.run ? 2 : 1.55;
             animations.run.paused = false;
 
             if (!animations.run.isRunning()) {
 
-                animations.run
-                    .reset()
-                    .play();
+                animations.run .reset().play();
 
             }
 
@@ -565,9 +396,7 @@ function updatePlayer(delta) {
     }
 
 
-    // -------------------------
-    // JUMP + CROUCH
-    // -------------------------
+
 
     if (keys.jump && !jumpWasHeld && isGrounded && !keys.crouch) {
         verticalVelocity = JUMP_FORCE;
@@ -592,16 +421,8 @@ function updatePlayer(delta) {
     const targetHeightScale = keys.crouch && isGrounded ? 0.62 : 1;
     const targetForwardLean = keys.crouch && isGrounded ? 0.12 : 0;
 
-    player.scale.y = THREE.MathUtils.lerp(
-        player.scale.y,
-        targetHeightScale,
-        crouchBlend
-    );
-    player.rotation.x = THREE.MathUtils.lerp(
-        player.rotation.x,
-        targetForwardLean,
-        crouchBlend
-    );
+    player.scale.y = THREE.MathUtils.lerp( player.scale.y,targetHeightScale,crouchBlend);
+    player.rotation.x = THREE.MathUtils.lerp( player.rotation.x,targetForwardLean,crouchBlend);
 
     updateGameSounds(gameSounds, {
         moving,
@@ -613,44 +434,21 @@ function updatePlayer(delta) {
 }
 
 
-// --------------------------------
-// CAMERA FOLLOW
-// --------------------------------
+
 
 function updateCamera(delta) {
 
     if (player) {
 
-        desiredCameraTarget.set(
-            player.position.x,
-            player.position.y + 1.5,
-            player.position.z
-        );
+        desiredCameraTarget.set(player.position.x,player.position.y + 1.5,player.position.z);
 
-        const cameraSmoothness =
-            1 -
-            Math.exp(
-                -5 * delta
-            );
+        const cameraSmoothness = 1 -Math.exp( -5 * delta );
 
-        cameraTargetShift
-            .subVectors(
-                desiredCameraTarget,
-                orbitControls.target
-            )
-            .multiplyScalar(
-                cameraSmoothness
-            );
+        cameraTargetShift.subVectors(desiredCameraTarget, orbitControls.target).multiplyScalar(cameraSmoothness);
 
-        // Move the camera and its target together so the selected
-        // orbit angle is preserved while following the player.
-        orbitControls.target.add(
-            cameraTargetShift
-        );
+        orbitControls.target.add( cameraTargetShift);
 
-        camera.position.add(
-            cameraTargetShift
-        );
+        camera.position.add( cameraTargetShift);
 
     }
 
@@ -659,71 +457,42 @@ function updateCamera(delta) {
 }
 
 
-// --------------------------------
-// ANIMATION LOOP
-// --------------------------------
 
 function animate() {
 
-    requestAnimationFrame(
-        animate
-    );
+    requestAnimationFrame( animate );
 
 
-    const delta =
-        clock.getDelta();
+    const delta = clock.getDelta();
 
-    const elapsed =
-        clock.elapsedTime;
+    const elapsed = clock.elapsedTime;
 
 
-    // Update character animation
+    
 
     if (mixer) {
 
-        mixer.update(
-            delta
-        );
+        mixer.update( delta);
 
     }
 
 
-    updatePlayer(
-        delta
-    );
+    updatePlayer(delta);
 
 
-    updateCamera(
-        delta
-    );
+    updateCamera( delta );
 
 
-    updateBreeze(
-        windVegetation,
-        breeze,
-        elapsed,
-        delta,
-        ground
-    );
+    updateBreeze( windVegetation,breeze,elapsed, delta, ground);
 
 
-    updateClouds(
-        clouds,
-        delta,
-        player?.position
-    );
+    updateClouds( clouds, delta, player?.position);
 
 
-    updateLandscape(
-        landscape,
-        elapsed
-    );
+    updateLandscape( landscape,elapsed );
 
 
-    renderer.render(
-        scene,
-        camera
-    );
+    renderer.render(scene, camera);
 
 }
 
@@ -731,26 +500,17 @@ function animate() {
 animate();
 
 
-// --------------------------------
-// WINDOW RESIZE
-// --------------------------------
 
-window.addEventListener(
-    "resize",
-    () => {
 
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
+window.addEventListener( "resize", () => {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
 
 
         camera.updateProjectionMatrix();
 
 
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
+        renderer.setSize( window.innerWidth, window.innerHeight);
 
     }
 );
