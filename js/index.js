@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { createSky } from "./sky.js";
 import { createSunlight } from "./sunlight.js";
 import { createGround } from "./ground.js";
@@ -121,12 +121,12 @@ function updateRound() {
 
 const scene = new THREE.Scene();
 
-scene.background =createSky();
+scene.background = createSky();
 
 const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight,0.1,1000);
 
 
-camera.position.set( 10, 8, 18);
+camera.position.set(0, 1.65, 6);
 
 const renderer = new THREE.WebGLRenderer({
         antialias: true
@@ -154,22 +154,13 @@ const gameSounds = createGameSounds(camera);
 gameArea.appendChild(renderer.domElement);
 
 
-const orbitControls =new OrbitControls(camera,renderer.domElement);
+const pointerLockControls = new PointerLockControls(camera, renderer.domElement);
 
-orbitControls.enableDamping = true;
-orbitControls.dampingFactor = 0.08;
-orbitControls.enablePan = false;
-orbitControls.minDistance = 5;
-orbitControls.maxDistance = 30;
-orbitControls.maxPolarAngle = Math.PI * 0.48;
-
-orbitControls.target.set( 0,1.5, 6);
-
-orbitControls.update();
-
-const desiredCameraTarget = new THREE.Vector3();
-
-const cameraTargetShift = new THREE.Vector3();
+renderer.domElement.addEventListener("click", () => {
+    if (!pointerLockControls.isLocked) {
+        pointerLockControls.lock();
+    }
+});
 
 
 const sunlight =createSunlight();
@@ -178,7 +169,7 @@ scene.add(sunlight);
 
 
 
-const ground =createGround();
+const ground = createGround();
 
 scene.add(ground);
 
@@ -331,6 +322,7 @@ let currentAnimation = null;
 createPlayer().then((data) => {
 
         player = data.player;
+        player.visible = false;
 
         mixer = data.mixer;
 
@@ -399,6 +391,8 @@ function playAnimation(action) {
 
 
 const moveDirection =new THREE.Vector3();
+const cameraForward = new THREE.Vector3();
+const cameraRight = new THREE.Vector3();
 const WALK_SPEED = 11;
 const SPRINT_SPEED = 16;
 const CROUCH_SPEED = 4.5;
@@ -417,22 +411,27 @@ function updatePlayer(delta) {
     
     moveDirection.set(0, 0, 0);
 
-
+    // Use only the camera's horizontal direction so looking up or down does
+    // not make the player fly or move more slowly.
+    camera.getWorldDirection(cameraForward);
+    cameraForward.y = 0;
+    cameraForward.normalize();
+    cameraRight.crossVectors(cameraForward, camera.up).normalize();
 
     if (keys.forward) {
-        moveDirection.z -= 1;
+        moveDirection.add(cameraForward);
     }
 
     if (keys.backward) {
-        moveDirection.z += 1;
+        moveDirection.sub(cameraForward);
     }
 
     if (keys.left) {
-        moveDirection.x -= 1;
+        moveDirection.sub(cameraRight);
     }
 
     if (keys.right) {
-        moveDirection.x += 1;
+        moveDirection.add(cameraRight);
     }
 
     const moving = moveDirection.lengthSq() > 0;
@@ -537,24 +536,18 @@ function updatePlayer(delta) {
 
 
 
-function updateCamera(delta) {
-
-    if (player) {
-
-        desiredCameraTarget.set(player.position.x,player.position.y + 1.5,player.position.z);
-
-        const cameraSmoothness = 1 -Math.exp( -5 * delta );
-
-        cameraTargetShift.subVectors(desiredCameraTarget, orbitControls.target).multiplyScalar(cameraSmoothness);
-
-        orbitControls.target.add( cameraTargetShift);
-
-        camera.position.add( cameraTargetShift);
-
+function updateCamera() {
+    if (!player) {
+        return;
     }
 
-    orbitControls.update();
+    const eyeHeight = keys.crouch && isGrounded ? 1.05 : 1.65;
 
+    camera.position.set(
+        player.position.x,
+        player.position.y + eyeHeight,
+        player.position.z
+    );
 }
 
 
@@ -583,7 +576,7 @@ function animate() {
     updateRound();
 
 
-    updateCamera( delta );
+    updateCamera();
 
 
     updateBreeze( windVegetation,breeze,elapsed, delta, ground);
