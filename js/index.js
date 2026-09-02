@@ -367,9 +367,7 @@ function playAnimation(action) {
     }
 
 
-    if (
-        currentAnimation === action
-    ) {
+    if (currentAnimation === action) {
         return;
     }
 
