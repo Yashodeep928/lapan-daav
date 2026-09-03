@@ -15,6 +15,7 @@ import { createRocks } from "./rocks.js";
 import { createClouds, updateClouds } from "./clouds.js";
 import { createLandscape, updateLandscape } from "./landscape.js";
 import { createGameSounds, updateGameSounds, playJumpSound } from "./sounds.js";
+import {createFence} from "./fence.js";
 
 import { createPlayer } from "./player.js";
 
@@ -167,7 +168,9 @@ const sunlight =createSunlight();
 
 scene.add(sunlight);
 
+const fence = createFence();
 
+scene.add(fence);
 
 const ground = createGround();
 
