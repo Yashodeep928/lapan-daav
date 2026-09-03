@@ -348,9 +348,7 @@ createPlayer().then((data) => {
 
     })
     .catch((error) => {
-
-        console.error("Player failed to load",error);
-
+     console.error("Player failed to load",error);
     });
 
 
