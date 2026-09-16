@@ -3,18 +3,15 @@ import * as THREE from "three";
 export function createFence() {
     const fenceGroup = new THREE.Group();
 
-    const groundWidth = 40;
-    const groundDepth = 30;
+    const groundWidth = 110;
+    const groundDepth = 110;
 
     const postHeight = 2;
     const postSpacing = 2;
 
     const postGeometry = new THREE.BoxGeometry(0.18, postHeight,0.18 );
 
-    const woodMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8b5a2b,
-            roughness: 0.8
-        });
+    const woodMaterial = new THREE.MeshStandardMaterial({color: 0x8b5a2b,roughness: 0.8,metalness: 0.2});
 
  
 
@@ -30,8 +27,7 @@ export function createFence() {
             if (horizontal) {
                 post.position.x =position;
             } else {
-                post.position.z =
-                    position;
+                post.position.z = position;
             }
 
             post.castShadow = true;
