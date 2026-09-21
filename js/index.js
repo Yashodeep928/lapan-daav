@@ -35,6 +35,56 @@ let foundFriends = 0;
 let lastDisplayedSecond = -1;
 let messageHideAt = 0;
 
+
+function isPlayerColliding() {
+    const playerBox = new THREE.Box3().setFromObject(player);
+
+    for (const obstacle of obstacles) {
+
+        const obstacleBox = new THREE.Box3().setFromObject(obstacle);
+
+        if (playerBox.intersectsBox(obstacleBox)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+function tryMovePlayer(moveX, moveZ) {
+
+    if (!player) {
+        return;
+    }
+
+
+
+    const oldX = player.position.x;
+
+    player.position.x += moveX;
+
+
+    if (isPlayerColliding()) {
+
+        player.position.x = oldX;
+
+    }
+
+
+    const oldZ = player.position.z;
+
+    player.position.z += moveZ;
+
+
+    if (isPlayerColliding()) {
+
+        player.position.z = oldZ;
+
+    }
+
+}
+
 function formatRoundTime(totalSeconds) {
     const seconds = Math.max(0, Math.ceil(totalSeconds));
     const hours = Math.floor(seconds / 3600);
@@ -172,6 +222,9 @@ const fence = createFence();
 
 scene.add(fence);
 
+
+
+
 const ground = createGround();
 
 scene.add(ground);
@@ -215,7 +268,6 @@ scene.add(tree2);
 
 
 
-
 const perimeterTreeLayout = [
     [-15, 0, -11, 0.82, 1],
     [13, 0, -11, 0.76, 2],
@@ -232,17 +284,17 @@ const perimeterTreeLayout = [
 ];
 
 const perimeterTrees = perimeterTreeLayout.map(([x, y, z, scale, type], index) => {
-
-        const tree = type === 1 ? createTree1() : createTree2();
-
-        tree.position.set(x, y, z);
-        tree.scale.setScalar(scale);
-        tree.rotation.y = index * 0.83;
-        tree.userData.windPhase = index * 1.19 + 0.4;
-
-        scene.add(tree);
-        return tree;
-    }
+    
+    const tree = type === 1 ? createTree1() : createTree2();
+    
+    tree.position.set(x, y, z);
+    tree.scale.setScalar(scale);
+    tree.rotation.y = index * 0.83;
+    tree.userData.windPhase = index * 1.19 + 0.4;
+    
+    scene.add(tree);
+    return tree;
+}
 );
 
 
@@ -256,6 +308,7 @@ scene.add(bench);
 
 
 
+const obstacles = [house,car,tree1,tree2,bench,fence];
 
 const bushes = createBushes();
 
@@ -436,51 +489,69 @@ function updatePlayer(delta) {
     const moving = moveDirection.lengthSq() > 0;
 
 
-    if (moving) {
+   if (moving) {
 
-        moveDirection.normalize();
+    moveDirection.normalize();
 
-      
+    const speed =keys.crouch ? CROUCH_SPEED : keys.run ? SPRINT_SPEED : WALK_SPEED;
 
-        const speed = keys.crouch ? CROUCH_SPEED : keys.run  ? SPRINT_SPEED : WALK_SPEED;
 
-   
+    const targetAngle =
+        Math.atan2(
+            moveDirection.x,
+            moveDirection.z
+        );
 
-        const targetAngle = Math.atan2( moveDirection.x,moveDirection.z );
 
-       
+    let angleDifference =
+        targetAngle -
+        player.rotation.y;
 
-        let angleDifference =targetAngle -player.rotation.y;
 
-        angleDifference = Math.atan2( Math.sin(angleDifference),Math.cos(angleDifference));
+    angleDifference =
+        Math.atan2(
+            Math.sin(angleDifference),
+            Math.cos(angleDifference)
+        );
 
-        player.rotation.y += angleDifference *Math.min( 1,10 * delta);
 
-     
+    player.rotation.y +=
+        angleDifference *
+        Math.min(
+            1,
+            10 * delta
+        );
 
-        player.position.x += moveDirection.x * speed * delta;
 
-        player.position.z += moveDirection.z * speed * delta;
+    // Calculate desired movement
 
-       
+    const moveX =
+        moveDirection.x *
+        speed *
+        delta;
 
-        if (
-            animations.run
-        ) {
+    const moveZ =
+        moveDirection.z *
+        speed *
+        delta;
 
-            
-            animations.run.timeScale = keys.crouch ? 0.72 : keys.run ? 2 : 1.55;
-            animations.run.paused = false;
 
-            if (!animations.run.isRunning()) {
+    
 
-                animations.run .reset().play();
+    tryMovePlayer(moveX,moveZ);
 
-            }
 
+    if (animations.run) {
+
+        animations.run.timeScale = keys.crouch ? 0.72 : keys.run ? 2 : 1.55;
+
+        animations.run.paused = false;
+
+        if (!animations.run.isRunning()) {
+            animations.run.reset().play();
         }
-
     }
+}
 
     else {
 
