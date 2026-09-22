@@ -308,7 +308,22 @@ scene.add(bench);
 
 
 
-const obstacles = [house,car,tree1,tree2,bench,fence];
+const obstacles = [house,car,tree1,tree2,bench];
+
+
+const collisionHelpers = [];
+
+obstacles.forEach((object) => {
+
+    const box = new THREE.Box3().setFromObject(object);
+
+    const helper = new THREE.Box3Helper(box,0xffff00);
+
+    scene.add(helper);
+
+    collisionHelpers.push({object,box,helper});
+
+});
 
 const bushes = createBushes();
 
@@ -620,6 +635,23 @@ function updateCamera() {
     );
 }
 
+function updateCollisionHelpers() {
+
+    collisionHelpers.forEach(
+        ({ object, box }) => {
+
+            object.updateWorldMatrix(
+                true,
+                true
+            );
+
+            box.setFromObject(object);
+
+        }
+    );
+
+}
+
 
 
 function animate() {
@@ -656,6 +688,8 @@ function animate() {
 
 
     updateLandscape( landscape,elapsed );
+
+    updateCollisionHelpers()
 
 
     renderer.render(scene, camera);
