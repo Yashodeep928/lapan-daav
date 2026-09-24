@@ -14,11 +14,7 @@ import { createBreeze, updateBreeze } from "./wind.js";
 import { createRocks } from "./rocks.js";
 import { createClouds, updateClouds } from "./clouds.js";
 import { createLandscape, updateLandscape } from "./landscape.js";
-import {
-    createGameSounds,
-    updateGameSounds,
-    playJumpSound
-} from "./sounds.js";
+import {createGameSounds,updateGameSounds,playJumpSound} from "./sounds.js";
 import { createFence } from "./fence.js";
 
 import { createPlayer } from "./player.js";
@@ -29,28 +25,24 @@ import {
 } from "./controls.js";
 
 
-const gameArea =
-    document.getElementById("gameArea");
+const gameArea = document.getElementById("gameArea");
 
-const timerDisplay =
-    document.getElementById("timerDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
 
-const friendsDisplay =
-    document.getElementById("friendsDisplay");
+const friendsDisplay = document.getElementById("friendsDisplay");
 
-const roundMessage =
-    document.getElementById("roundMessage");
+const roundMessage =document.getElementById("roundMessage");
 
 
 // =====================================================
 // ROUND
 // =====================================================
 
-const ROUND_DURATION_MS =
-    60 * 60 * 1000;
+const ROUND_DURATION_MS = 60 * 60 * 1000;
 
-const FIND_DISTANCE =
-    2.25;
+const FIND_DISTANCE =  2.25;
+
+const FRIEND_SPEED = 3;
 
 let roundStarted = false;
 let roundFinished = false;
@@ -1655,71 +1647,34 @@ function updatePlayer(
     // CROUCH
     // =================================================
 
-    const crouchBlend =
-        1 -
-        Math.exp(
-            -12 * delta
-        );
+    const crouchBlend = 1 -Math.exp( -12 * delta);
 
 
-    const targetHeightScale =
-        keys.crouch &&
-        isGrounded
-            ? 0.62
-            : 1;
+    const targetHeightScale =keys.crouch && isGrounded ? 0.62 : 1;
 
 
-    const targetForwardLean =
-        keys.crouch &&
-        isGrounded
-            ? 0.12
-            : 0;
+    const targetForwardLean = keys.crouch && isGrounded? 0.12: 0;
 
 
-    player.scale.y =
-        THREE.MathUtils.lerp(
-
-            player.scale.y,
-
-            targetHeightScale,
-
-            crouchBlend
-
-        );
+    player.scale.y =THREE.MathUtils.lerp(player.scale.y,targetHeightScale,crouchBlend);
 
 
-    player.rotation.x =
-        THREE.MathUtils.lerp(
-
-            player.rotation.x,
-
-            targetForwardLean,
-
-            crouchBlend
-
-        );
+    player.rotation.x = THREE.MathUtils.lerp(player.rotation.x,targetForwardLean,crouchBlend);
 
 
     // =================================================
     // SOUNDS
     // =================================================
 
-    updateGameSounds(
+    updateGameSounds(gameSounds,
 
-        gameSounds,
+        {moving,
 
-        {
+            grounded:isGrounded,
 
-            moving,
+            crouching:keys.crouch,
 
-            grounded:
-                isGrounded,
-
-            crouching:
-                keys.crouch,
-
-            sprinting:
-                keys.run
+            sprinting:keys.run
 
         }
 
@@ -1728,37 +1683,18 @@ function updatePlayer(
 }
 
 
-// =====================================================
-// CAMERA
-// =====================================================
+
 
 function updateCamera() {
 
-    if (!player) {
-        return;
-    }
+    if (!player)  return;
+    
 
 
-    const eyeHeight =
-
-        keys.crouch &&
-        isGrounded
-
-            ? 1.05
-
-            : 1.65;
+    const eyeHeight = keys.crouch && isGrounded ? 1.05 : 1.65;
 
 
-    camera.position.set(
-
-        player.position.x,
-
-        player.position.y +
-        eyeHeight,
-
-        player.position.z
-
-    );
+camera.position.set(player.position.x,player.position.y + eyeHeight,player.position.z);
 
 }
 
@@ -1767,35 +1703,93 @@ function updateCamera() {
 // ANIMATION LOOP
 // =====================================================
 
+
+
+function updateHiddenPlayers(delta) {
+
+    hiddenPlayers.forEach((friend) => {
+
+        if (friend.found || friend.state === "hidden") return;
+       
+
+        const direction = friend.targetPosition.clone().sub(friend.character.position);
+
+        direction.y = 0;
+
+        const distance = direction.length();
+
+
+       
+        if (distance < 0.3) {
+
+            friend.state = "hidden";
+
+            friend.character.position.copy( friend.targetPosition);
+
+            if (friend.action) {
+                friend.action.paused = true;
+            }
+
+            return;
+        }
+
+
+        direction.normalize();
+
+
+        friend.character.position.addScaledVector(direction,FRIEND_SPEED * delta);
+
+
+        // Face movement direction
+
+        const targetAngle =Math.atan2(direction.x,direction.z);
+
+        friend.character.rotation.y = targetAngle;
+
+
+        // Play running/walking animation
+
+        if (friend.action) {
+
+            friend.action.paused =false;
+
+            if (!friend.action.isRunning()) {
+
+                friend.action.reset().play();
+
+            }
+
+        }
+
+    });
+
+}
+
+
+
+
+
 function animate() {
 
-    requestAnimationFrame(
-        animate
-    );
+    requestAnimationFrame(animate);
 
 
-    const delta =
-        clock.getDelta();
+    const delta =clock.getDelta();
 
 
-    const elapsed =
-        clock.elapsedTime;
+    const elapsed =clock.elapsedTime;
 
 
-    if (
-        mixer
-    ) {
+    if (mixer) {
 
-        mixer.update(
-            delta
-        );
+        mixer.update(delta);
 
     }
 
 
-    updatePlayer(
-        delta
-    );
+    updatePlayer(delta);
+
+    updateHiddenPlayers(delta)
 
 
     updateRound();
@@ -1804,48 +1798,16 @@ function animate() {
     updateCamera();
 
 
-    updateBreeze(
-
-        windVegetation,
-
-        breeze,
-
-        elapsed,
-
-        delta,
-
-        ground
-
-    );
+    updateBreeze(windVegetation, breeze,elapsed,delta,ground);
 
 
-    updateClouds(
-
-        clouds,
-
-        delta,
-
-        player?.position
-
-    );
+    updateClouds(clouds,delta,player?.position);
 
 
-    updateLandscape(
-
-        landscape,
-
-        elapsed
-
-    );
+    updateLandscape(landscape,elapsed);
 
 
-    renderer.render(
-
-        scene,
-
-        camera
-
-    );
+    renderer.render(scene,camera);
 
 }
 
@@ -1853,33 +1815,15 @@ function animate() {
 animate();
 
 
-// =====================================================
-// WINDOW RESIZE
-// =====================================================
+window.addEventListener("resize",() => {
 
-window.addEventListener(
-
-    "resize",
-
-    () => {
-
-        camera.aspect =
-
-            window.innerWidth /
-
-            window.innerHeight;
+        camera.aspect = window.innerWidth / window.innerHeight;
 
 
         camera.updateProjectionMatrix();
 
 
-        renderer.setSize(
-
-            window.innerWidth,
-
-            window.innerHeight
-
-        );
+        renderer.setSize( window.innerWidth, window.innerHeight);
 
     }
 
