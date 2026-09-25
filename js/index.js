@@ -19,10 +19,7 @@ import { createFence } from "./fence.js";
 
 import { createPlayer } from "./player.js";
 
-import {
-    setupControls,
-    keys
-} from "./controls.js";
+import { setupControls,keys} from "./controls.js";
 
 
 const gameArea = document.getElementById("gameArea");
