@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { createSky } from "./sky.js";
 import { createSunlight } from "./sunlight.js";
+
 import { createGround } from "./ground.js";
 import { createHouse } from "./house.js";
 import { createCar } from "./car.js";
@@ -53,10 +54,7 @@ let messageHideAt = 0;
 // TRY PLAYER MOVEMENT
 // =====================================================
 
-function tryMovePlayer(
-    moveX,
-    moveZ
-) {
+function tryMovePlayer( moveX, moveZ) {
 
     if (!player) {
         return;
