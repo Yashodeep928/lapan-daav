@@ -56,31 +56,24 @@ let messageHideAt = 0;
 
 function tryMovePlayer( moveX, moveZ) {
 
-    if (!player) {
-        return;
-    }
+    if (!player) return;
 
 
-    const oldX =
-        player.position.x;
+    const oldX = player.position.x;
 
-    player.position.x +=
-        moveX;
+    player.position.x += moveX;
 
 
     if (isPlayerColliding()) {
 
-        player.position.x =
-            oldX;
+        player.position.x =oldX;
 
     }
 
 
-    const oldZ =
-        player.position.z;
+    const oldZ =player.position.z;
 
-    player.position.z +=
-        moveZ;
+    player.position.z += moveZ;
 
 
     if (isPlayerColliding()) {
