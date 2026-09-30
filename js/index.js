@@ -120,16 +120,17 @@ function updateFriendsDisplay() {
 // ROUND MESSAGE
 // =====================================================
 
-function showRoundMessage(text,finalMessage = false) {
+function showRoundMessage(
+    text,
+    finalMessage = false
+) {
 
-    roundMessage.textContent = text;
+    roundMessage.textContent =
+        text;
 
     roundMessage.classList.add("visible");
 
-    roundMessage.classList.toggle(
-        "final",
-        finalMessage
-    );
+    roundMessage.classList.toggle("final",finalMessage);
 
     messageHideAt =
         finalMessage
