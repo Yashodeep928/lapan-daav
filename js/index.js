@@ -120,8 +120,7 @@ function updateFriendsDisplay() {
 // ROUND MESSAGE
 // =====================================================
 
-function showRoundMessage(
-    text,
+function showRoundMessage(text,
     finalMessage = false
 ) {
 
